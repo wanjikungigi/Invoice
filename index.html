@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eTIMS-Ready Quote & Invoice Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    @media print {
+      body { background: white !important; }
+      .no-print { display: none !important; }
+      .print-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+      }
+      @page { size: A4; margin: 12mm; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans">
+
+  <!-- Top Navigation Bar -->
+  <header class="no-print bg-slate-900 text-white px-6 py-3 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-10 shadow">
+    <div class="flex items-center gap-2">
+      <span class="bg-emerald-500 text-slate-950 font-bold px-2 py-0.5 rounded text-xs">KE TAX READY</span>
+      <h1 class="font-semibold text-lg">Invoice & Quote Studio</h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="loadDemoData()" class="px-3 py-1.5 text-xs bg-slate-700 hover:bg-slate-600 rounded">Load Demo</button>
+      <button onclick="saveProfileToStorage()" class="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-500 rounded">Save Business Profile</button>
+      <button onclick="window.print()" class="px-4 py-1.5 text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded">Export / Print PDF</button>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- LEFT PANEL: EDITOR FORM -->
+    <section class="no-print lg:col-span-5 space-y-5">
+      
+      <!-- Document Type & Numbering -->
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
+        <h2 class="font-semibold text-sm uppercase tracking-wider text-slate-500">1. Document Details</h2>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium mb-1">Document Type</label>
+            <select id="docType" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm">
+              <option value="QUOTATION">QUOTATION</option>
+              <option value="PROFORMA INVOICE">PROFORMA INVOICE</option>
+              <option value="TAX INVOICE">TAX INVOICE</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1">Document No.</label>
+            <input id="docNumber" type="text" value="QT-2026-001" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1">Issue Date</label>
+            <input id="issueDate" type="date" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium mb-1">Due / Valid Until</label>
+            <input id="dueDate" type="date" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Seller Details -->
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
+        <h2 class="font-semibold text-sm uppercase tracking-wider text-slate-500">2. Your Business (Seller)</h2>
+        <input id="sellerName" type="text" placeholder="Registered Business Name" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+        <div class="grid grid-cols-2 gap-3">
+          <input id="sellerPin" type="text" placeholder="Seller KRA PIN (e.g. P051234567Z)" oninput="validatePin(this); renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm uppercase" />
+          <input id="sellerPhone" type="text" placeholder="Phone / Email" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+        </div>
+        <input id="sellerAddress" type="text" placeholder="Building, Street, City (e.g. Nairobi, Kenya)" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+      </div>
+
+      <!-- Buyer Details -->
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
+        <h2 class="font-semibold text-sm uppercase tracking-wider text-slate-500">3. Client Details (Buyer)</h2>
+        <input id="buyerName" type="text" placeholder="Client / Company Name" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+        <div class="grid grid-cols-2 gap-3">
+          <input id="buyerPin" type="text" placeholder="Buyer KRA PIN (Required for B2B)" oninput="validatePin(this); renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm uppercase" />
+          <input id="buyerContact" type="text" placeholder="Client Phone / Email" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+        </div>
+        <input id="buyerAddress" type="text" placeholder="Client Address" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+      </div>
+
+      <!-- Line Items -->
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
+        <div class="flex justify-between items-center">
+          <h2 class="font-semibold text-sm uppercase tracking-wider text-slate-500">4. Line Items</h2>
+          <button onclick="addItem()" class="text-xs bg-slate-900 text-white px-2.5 py-1 rounded hover:bg-slate-700">+ Add Item</button>
+        </div>
+        <div id="itemsContainer" class="space-y-2"></div>
+      </div>
+
+      <!-- eTIMS Control & Payment Notes -->
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
+        <h2 class="font-semibold text-sm uppercase tracking-wider text-slate-500">5. Payment & eTIMS Metadata (Optional)</h2>
+        <div class="grid grid-cols-2 gap-3">
+          <input id="cuInvoiceNo" type="text" placeholder="eTIMS CU Invoice No." oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+          <input id="qrUrl" type="url" placeholder="eTIMS Verification URL (for QR)" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+        </div>
+        <textarea id="paymentNotes" rows="3" placeholder="Payment Instructions (Bank Name, Account No, M-Pesa Paybill / Till)" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm"></textarea>
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANEL: LIVE A4 PREVIEW -->
+    <section class="lg:col-span-7">
+      <div id="invoiceSheet" class="print-container bg-white shadow-lg border border-slate-200 p-8 min-h-[1050px] flex flex-col justify-between">
+        
+        <div>
+          <!-- Header -->
+          <div class="flex justify-between items-start border-b-2 border-slate-900 pb-6">
+            <div>
+              <h2 id="prevSellerName" class="text-2xl font-bold text-slate-900">Your Business Name</h2>
+              <p id="prevSellerAddress" class="text-xs text-slate-600 mt-1">Nairobi, Kenya</p>
+              <p id="prevSellerPhone" class="text-xs text-slate-600">info@business.co.ke</p>
+              <p class="text-xs font-semibold text-slate-800 mt-1">KRA PIN: <span id="prevSellerPin" class="font-mono">-</span></p>
+            </div>
+            <div class="text-right">
+              <span id="prevDocType" class="inline-block bg-slate-900 text-white font-bold px-3 py-1 text-sm tracking-widest">QUOTATION</span>
+              <p class="text-sm font-mono font-semibold mt-2" id="prevDocNumber">QT-2026-001</p>
+              <p class="text-xs text-slate-600 mt-1">Issue Date: <span id="prevIssueDate">-</span></p>
+              <p class="text-xs text-slate-600">Valid / Due: <span id="prevDueDate">-</span></p>
+            </div>
+          </div>
+
+          <!-- Bill To -->
+          <div class="mt-6 bg-slate-50 p-4 rounded border border-slate-200 flex justify-between">
+            <div>
+              <p class="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">Bill To</p>
+              <p id="prevBuyerName" class="font-bold text-slate-900 text-base mt-0.5">Client Name</p>
+              <p id="prevBuyerAddress" class="text-xs text-slate-600">Client Address</p>
+              <p id="prevBuyerContact" class="text-xs text-slate-600">Client Contact</p>
+            </div>
+            <div class="text-right self-end">
+              <p class="text-xs font-semibold text-slate-800">Buyer KRA PIN: <span id="prevBuyerPin" class="font-mono">-</span></p>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <table class="w-full mt-6 text-left border-collapse">
+            <thead>
+              <tr class="border-b-2 border-slate-900 text-xs uppercase text-slate-600">
+                <th class="py-2">Description</th>
+                <th class="py-2 text-right">Qty</th>
+                <th class="py-2 text-right">Unit Price</th>
+                <th class="py-2 text-center">Tax</th>
+                <th class="py-2 text-right">Total (KES)</th>
+              </tr>
+            </thead>
+            <tbody id="prevItemsBody" class="text-sm divide-y divide-slate-200"></tbody>
+          </table>
+
+          <!-- Totals -->
+          <div class="mt-6 flex justify-end">
+            <div class="w-64 space-y-1.5 text-sm">
+              <div class="flex justify-between text-slate-600">
+                <span>Subtotal (Excl. VAT):</span>
+                <span id="prevSubtotal" class="font-mono">0.00</span>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span>VAT (16%):</span>
+                <span id="prevVat" class="font-mono">0.00</span>
+              </div>
+              <div class="flex justify-between font-bold text-base text-slate-900 border-t-2 border-slate-900 pt-2">
+                <span>TOTAL (KES):</span>
+                <span id="prevGrandTotal" class="font-mono">0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer: Payment Notes & eTIMS QR -->
+        <div class="mt-10 pt-4 border-t border-slate-200 flex justify-between items-end gap-4">
+          <div class="text-xs text-slate-600 max-w-md whitespace-pre-line">
+            <p class="font-semibold text-slate-800 mb-1">Payment Details & Terms:</p>
+            <p id="prevPaymentNotes">Bank / M-Pesa payment details go here.</p>
+            <p id="prevCuWrapper" class="mt-2 font-mono text-[11px] text-slate-700 hidden">
+              eTIMS CU Invoice No: <span id="prevCuInvoiceNo" class="font-bold"></span>
+            </p>
+          </div>
+          <div id="qrWrapper" class="text-center hidden">
+            <div id="qrcode" class="p-1 border border-slate-200 inline-block"></div>
+            <p class="text-[10px] text-slate-500 mt-1">Scan to Verify eTIMS</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
