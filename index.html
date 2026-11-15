@@ -324,6 +324,21 @@
       background: #fecaca;
     }
 
+    /* Constant Payment Info Box in Sidebar */
+    .constant-info-box {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .constant-info-box strong {
+      color: var(--navy-dark);
+    }
+
     /* Live Preview Wrapper (Right) */
     .preview-container {
       display: flex;
@@ -719,7 +734,7 @@
         </div>
       </div>
 
-      <!-- 3. Line Items & Rate Card / Sponsorship Packages -->
+      <!-- 3. Line Items & Packages -->
       <div class="section-card">
         <div class="section-heading">
           <span>3. PACKAGES &amp; LINE ITEMS</span>
@@ -761,62 +776,15 @@
         <div id="items-editor-list"></div>
       </div>
 
-      <!-- 4. Sender & Footer Bank / MPESA Details -->
+      <!-- 4. Sender & Footer Payment Details (Locked / Constant) -->
       <div class="section-card">
-        <div class="section-heading">4. SENDER &amp; FOOTER PAYMENT DETAILS</div>
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label>Sender Phone</label>
-            <input type="text" id="in-sender-phone" class="form-control" value="0713 907 584" oninput="renderInvoice()">
-          </div>
-          <div class="form-group">
-            <label>Sender Email</label>
-            <input type="text" id="in-sender-email" class="form-control" value="info@firesmediaevents.com" oninput="renderInvoice()">
-          </div>
-        </div>
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label>Bank Name</label>
-            <input type="text" id="in-bank-name" class="form-control" value="FAMILY BANK LIMITED" oninput="renderInvoice()">
-          </div>
-          <div class="form-group">
-            <label>Branch</label>
-            <input type="text" id="in-bank-branch" class="form-control" value="RUIRU" oninput="renderInvoice()">
-          </div>
-          <div class="form-group">
-            <label>Bank Code</label>
-            <input type="text" id="in-bank-code" class="form-control" value="070" oninput="renderInvoice()">
-          </div>
-          <div class="form-group">
-            <label>Branch Code</label>
-            <input type="text" id="in-branch-code" class="form-control" value="024" oninput="renderInvoice()">
-          </div>
-          <div class="form-group">
-            <label>SWIFT Code</label>
-            <input type="text" id="in-swift-code" class="form-control" value="FABLKENA" oninput="renderInvoice()">
-          </div>
-          <div class="form-group">
-            <label>Account Number</label>
-            <input type="text" id="in-acc-num" class="form-control" value="024000066950" oninput="renderInvoice()">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Account Name</label>
-          <input type="text" id="in-acc-name" class="form-control" value="FIRES MEDIA & MARKETING/ ADVERTISING COMPANY LTD" oninput="renderInvoice()">
-        </div>
-        <div class="form-grid-2">
-          <div class="form-group">
-            <label>MPESA Paybill No.</label>
-            <input type="text" id="in-paybill" class="form-control" value="222111" oninput="renderInvoice()">
-          </div>
-          <div class="form-group">
-            <label>MPESA Account No.</label>
-            <input type="text" id="in-mpesa-acc" class="form-control" value="3145745" oninput="renderInvoice()">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>MPESA Business Name</label>
-          <input type="text" id="in-mpesa-biz" class="form-control" value="FIRES MEDIA FAMILY BANK" oninput="renderInvoice()">
+        <div class="section-heading">4. PAYMENT DETAILS</div>
+        <div class="constant-info-box">
+          <strong>Bank:</strong> Family Bank Ltd (Ruiru)<br>
+          <strong>Account No:</strong> 024000066950<br>
+          <strong>Account Name:</strong> Fires Media &amp; Marketing / Advertising Co. Ltd<br>
+          <strong>MPESA Paybill:</strong> 222111 (Acct: 3145745)<br>
+          <strong>Contacts:</strong> Tel: 0713 907 584 | info@firesmediaevents.com
         </div>
       </div>
 
@@ -853,8 +821,8 @@
             <div class="parties-row">
               <div class="sender-block">
                 <h2>CRIBS &amp; BIZ FUSION EXPO</h2>
-                <span class="sender-line">Tel: <span id="out-sender-phone">0713 907 584</span></span>
-                <span class="sender-line" id="out-sender-email">info@firesmediaevents.com</span>
+                <span class="sender-line">Tel: 0713 907 584</span>
+                <span class="sender-line">info@firesmediaevents.com</span>
               </div>
 
               <div class="client-block">
@@ -912,38 +880,38 @@
               <table class="bank-details-table">
                 <tr>
                   <td class="bank-label">BANK NAME:</td>
-                  <td class="bank-val" id="out-bank-name">FAMILY BANK LIMITED</td>
+                  <td class="bank-val">FAMILY BANK LIMITED</td>
                 </tr>
                 <tr>
                   <td class="bank-label">BRANCH:</td>
-                  <td class="bank-val" id="out-bank-branch">RUIRU</td>
+                  <td class="bank-val">RUIRU</td>
                 </tr>
                 <tr>
                   <td class="bank-label">BANK CODE:</td>
-                  <td class="bank-val" id="out-bank-code">070</td>
+                  <td class="bank-val">070</td>
                 </tr>
                 <tr>
                   <td class="bank-label">BRANCH CODE:</td>
-                  <td class="bank-val" id="out-branch-code">024</td>
+                  <td class="bank-val">024</td>
                 </tr>
                 <tr>
                   <td class="bank-label">SWIF CODE:</td>
-                  <td class="bank-val" id="out-swift-code">FABLKENA</td>
+                  <td class="bank-val">FABLKENA</td>
                 </tr>
                 <tr>
                   <td class="bank-label">ACCOUNT NAME</td>
-                  <td class="bank-val" id="out-acc-name">FIRES MEDIA &amp; MARKETING/<br>ADVERTISING COMPANY LTD</td>
+                  <td class="bank-val">FIRES MEDIA &amp; MARKETING/<br>ADVERTISING COMPANY LTD</td>
                 </tr>
                 <tr>
                   <td class="bank-label">ACCOUNT NUMBER:</td>
-                  <td class="bank-val" id="out-acc-num">024000066950</td>
+                  <td class="bank-val">024000066950</td>
                 </tr>
               </table>
 
               <div class="mpesa-banner">
-                <div class="mpesa-line-1">MPESA PAYMENT: PAYBILL No. <span id="out-paybill-1">222111</span></div>
+                <div class="mpesa-line-1">MPESA PAYMENT: PAYBILL No. 222111</div>
                 <div class="mpesa-line-2">
-                  PAYBILL No. <span id="out-paybill-2">222111</span> | ACCT. <span id="out-mpesa-acc">3145745</span> | BUSINESS NAME. <span id="out-mpesa-biz">FIRES MEDIA FAMILY BANK</span>
+                  PAYBILL No. 222111 | ACCT. 3145745 | BUSINESS NAME. FIRES MEDIA FAMILY BANK
                 </div>
               </div>
             </div>
@@ -1095,9 +1063,6 @@
       document.getElementById('out-issue-date').textContent = document.getElementById('in-issue-date').value;
       document.getElementById('out-due-date').textContent = document.getElementById('in-due-date').value;
 
-      document.getElementById('out-sender-phone').textContent = document.getElementById('in-sender-phone').value;
-      document.getElementById('out-sender-email').textContent = document.getElementById('in-sender-email').value;
-
       document.getElementById('out-client-name').textContent = document.getElementById('in-client-name').value || 'CLIENT NAME';
       const pinVal = document.getElementById('in-client-pin').value.trim();
       document.getElementById('out-client-pin').textContent = pinVal ? pinVal : '-';
@@ -1135,22 +1100,6 @@
       document.getElementById('out-total').textContent = formatMoney(invoiceTotal);
       document.getElementById('out-net-payments').textContent = formatMoney(netPayments);
       document.getElementById('out-amount-due').textContent = formatMoney(amountDue);
-
-      document.getElementById('out-bank-name').textContent = document.getElementById('in-bank-name').value;
-      document.getElementById('out-bank-branch').textContent = document.getElementById('in-bank-branch').value;
-      document.getElementById('out-bank-code').textContent = document.getElementById('in-bank-code').value;
-      document.getElementById('out-branch-code').textContent = document.getElementById('in-branch-code').value;
-      document.getElementById('out-swift-code').textContent = document.getElementById('in-swift-code').value;
-
-      const accNameRaw = document.getElementById('in-acc-name').value;
-      document.getElementById('out-acc-name').innerHTML = escapeHtml(accNameRaw).replace('/', '/<br>');
-      document.getElementById('out-acc-num').textContent = document.getElementById('in-acc-num').value;
-
-      const paybill = document.getElementById('in-paybill').value;
-      document.getElementById('out-paybill-1').textContent = paybill;
-      document.getElementById('out-paybill-2').textContent = paybill;
-      document.getElementById('out-mpesa-acc').textContent = document.getElementById('in-mpesa-acc').value;
-      document.getElementById('out-mpesa-biz').textContent = document.getElementById('in-mpesa-biz').value;
     }
 
     function escapeHtml(str) {
