@@ -3,180 +3,1199 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cribs & Biz Fusion Expo - Payment Invoice Generator</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <title>Cribs & Biz Fusion Expo — Invoice Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    @media print {
-      body { background: white !important; }
-      .no-print { display: none !important; }
-      .print-container {
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-        border: none !important;
+    :root {
+      --navy-dark: #0e2447;
+      --navy-mid: #16376b;
+      --navy-light: #1e488a;
+      --expo-yellow: #ffe600;
+      --expo-yellow-hover: #f2d900;
+      --bg-app: #f1f5f9;
+      --border-subtle: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', 'Montserrat', sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top App Navigation Bar */
+    .topbar {
+      background-color: var(--navy-dark);
+      color: #ffffff;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-billing {
+      background-color: var(--expo-yellow);
+      color: var(--navy-dark);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.6px;
+    }
+
+    .topbar-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 0.2px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 12.5px;
+      padding: 9px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-download {
+      background-color: var(--expo-yellow);
+      color: var(--navy-dark);
+    }
+
+    .btn-download:hover {
+      background-color: var(--expo-yellow-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-download:disabled {
+      opacity: 0.7;
+      cursor: wait;
+    }
+
+    /* Main Split Layout */
+    .workspace {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 24px;
+      padding: 24px;
+      max-width: 1500px;
+      width: 100%;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .workspace {
+        grid-template-columns: 1fr;
       }
-      @page { size: A4; margin: 10mm; }
+    }
+
+    /* Editor Panel (Left) */
+    .editor-panel {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-height: calc(100vh - 96px);
+      overflow-y: auto;
+    }
+
+    .section-card {
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 18px;
+    }
+
+    .section-card:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .section-heading {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--navy-dark);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .form-control {
+      font-family: 'Poppins', sans-serif;
+      font-size: 13px;
+      padding: 8px 10px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      color: var(--text-main);
+      background: #ffffff;
+      width: 100%;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--navy-mid);
+      box-shadow: 0 0 0 2px rgba(22, 55, 107, 0.12);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 74px;
+    }
+
+    /* Quick Package Presets Grid */
+    .preset-group-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 6px 0 5px 0;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .btn-preset {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 7px 6px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: var(--navy-dark);
+      cursor: pointer;
+      text-align: center;
+      line-height: 1.25;
+      transition: all 0.15s ease;
+    }
+
+    .btn-preset:hover {
+      background: #e2e8f0;
+      border-color: var(--navy-mid);
+    }
+
+    .btn-preset small {
+      display: block;
+      font-weight: 600;
+      font-size: 9.5px;
+      color: #475569;
+      margin-top: 2px;
+    }
+
+    .btn-preset.tier-bronze {
+      background: #fdf6f0;
+      border-color: #d6a276;
+      color: #7c3f11;
+    }
+    .btn-preset.tier-bronze:hover {
+      background: #fae8d8;
+    }
+
+    .btn-preset.tier-silver {
+      background: #f8fafc;
+      border-color: #94a3b8;
+      color: #334155;
+    }
+    .btn-preset.tier-silver:hover {
+      background: #e2e8f0;
+    }
+
+    .btn-preset.tier-gold {
+      background: #fefce8;
+      border-color: #eab308;
+      color: #854d0e;
+    }
+    .btn-preset.tier-gold:hover {
+      background: #fef08a;
+    }
+
+    .btn-add-item {
+      background-color: var(--navy-dark);
+      color: #ffffff;
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .btn-add-item:hover {
+      background-color: var(--navy-mid);
+    }
+
+    .line-item-editor {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .line-item-row {
+      display: grid;
+      grid-template-columns: 70px 1fr 70px 34px;
+      gap: 6px;
+      align-items: end;
+      margin-top: 8px;
+    }
+
+    .btn-remove {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: none;
+      border-radius: 5px;
+      height: 35px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-remove:hover {
+      background: #fecaca;
+    }
+
+    /* Live Preview Wrapper (Right) */
+    .preview-container {
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+      padding-bottom: 24px;
+    }
+
+    /* A4 Invoice Sheet - Exactly 1 Page Fit */
+    #invoice-sheet {
+      width: 210mm;
+      height: 297mm;
+      max-height: 297mm;
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #111827;
+      font-family: 'Poppins', 'Montserrat', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Top Navy Header Banner */
+    .inv-header {
+      background: linear-gradient(135deg, #163a75 0%, #0d2347 100%);
+      color: #ffffff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .inv-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .expo-logo-wrapper {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #12346e;
+    }
+
+    .expo-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .inv-header-titles .sub-brand {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--expo-yellow);
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .inv-header-titles h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      line-height: 1.1;
+      color: #ffffff;
+    }
+
+    .inv-header-right {
+      text-align: right;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .inv-number-tag {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--expo-yellow);
+      margin-bottom: 3px;
+    }
+
+    .inv-meta-line {
+      font-size: 11px;
+      color: #e2e8f0;
+      line-height: 1.4;
+    }
+
+    /* Main Body Content */
+    .inv-body {
+      padding: 18px 32px 12px 32px;
+      flex: 1;
+    }
+
+    /* Sender & Client Row */
+    .parties-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 14px;
+      border-bottom: 1.5px solid #cbd5e1;
+      margin-bottom: 16px;
+      gap: 24px;
+    }
+
+    .sender-block h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--navy-dark);
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .sender-block .sender-line {
+      font-size: 11.5px;
+      color: #334155;
+      line-height: 1.5;
+      display: block;
+    }
+
+    .client-block {
+      text-align: right;
+    }
+
+    .client-block .bill-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 2px;
+    }
+
+    .client-block .client-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--navy-dark);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .client-block .client-sub {
+      font-size: 11px;
+      color: #475569;
+      line-height: 1.4;
+    }
+
+    /* Items Table */
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 14px;
+    }
+
+    .items-table thead th {
+      background-color: #133469;
+      color: #ffffff;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    .items-table thead th.num,
+    .items-table tbody td.num {
+      text-align: right;
+    }
+
+    .items-table tbody td {
+      padding: 9px 10px;
+      font-size: 11px;
+      color: #1e293b;
+      border-bottom: 1px solid #cbd5e1;
+      vertical-align: top;
+      line-height: 1.45;
+    }
+
+    .desc-text {
+      white-space: pre-line;
+      font-weight: 500;
+    }
+
+    /* Totals Section */
+    .totals-wrapper {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .totals-table {
+      width: 270px;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .totals-table td {
+      padding: 4px 8px;
+      color: #1e293b;
+    }
+
+    .totals-table td.label {
+      text-align: right;
+      font-weight: 500;
+    }
+
+    .totals-table td.val {
+      text-align: right;
+      font-weight: 600;
+      width: 110px;
+    }
+
+    .totals-table tr.border-top td {
+      border-top: 1px solid #94a3b8;
+      padding-top: 6px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .totals-table tr.border-bottom td {
+      border-bottom: 1px solid #94a3b8;
+      padding-bottom: 6px;
+    }
+
+    .totals-table tr.amount-due td {
+      padding-top: 7px;
+      font-weight: 800;
+      font-size: 11.5px;
+      color: var(--navy-dark);
+    }
+
+    /* Payment Made To Block */
+    .payment-section {
+      margin-top: 4px;
+    }
+
+    .payment-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: #1e293b;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    .bank-details-table {
+      width: 100%;
+      max-width: 540px;
+      border-collapse: collapse;
+      font-size: 10.5px;
+      margin-bottom: 10px;
+    }
+
+    .bank-details-table td {
+      padding: 2.5px 0;
+      vertical-align: top;
+      line-height: 1.4;
+    }
+
+    .bank-details-table td.bank-label {
+      width: 210px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      color: #0f172a;
+      text-transform: uppercase;
+    }
+
+    .bank-details-table td.bank-val {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      color: #1e293b;
+      text-transform: uppercase;
+    }
+
+    /* Yellow MPESA Payment Banner */
+    .mpesa-banner {
+      background-color: var(--expo-yellow);
+      color: #0f172a;
+      padding: 9px 14px;
+      margin-bottom: 10px;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .mpesa-banner .mpesa-line-1 {
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+    }
+
+    .mpesa-banner .mpesa-line-2 {
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
+    /* Bottom Navy Strip */
+    .inv-bottom-strip {
+      background-color: #133469;
+      color: #ffffff;
+      text-align: center;
+      padding: 7px 16px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin: 0 32px 18px 32px;
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans">
+<body>
 
-  <!-- Top Navigation Bar -->
-  <header class="no-print bg-[#122453] text-white px-6 py-3 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-10 shadow">
-    <div class="flex items-center gap-3">
-      <span class="bg-[#FACC15] text-[#122453] font-extrabold px-2 py-0.5 rounded text-xs">EXPO BILLING</span>
-      <h1 class="font-semibold text-lg">Cribs & Biz Fusion Expo Invoice Portal</h1>
+  <!-- Top Portal Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="badge-billing">EXPO BILLING</span>
+      <span class="topbar-title">Cribs &amp; Biz Fusion Expo Invoice Portal</span>
     </div>
-    <div class="flex items-center gap-2">
-      <button onclick="loadDefaultExpoData()" class="px-3 py-1.5 text-xs bg-slate-700 hover:bg-slate-600 rounded text-white font-medium">Load Davis & Shirtliff Sample</button>
-      <button onclick="window.print()" class="px-4 py-1.5 text-xs font-bold bg-[#FACC15] hover:bg-yellow-400 text-[#122453] rounded shadow">Export / Print PDF</button>
+    <div class="topbar-actions">
+      <button type="button" class="btn btn-download" id="downloadBtn" onclick="downloadPDF()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download PDF
+      </button>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-    
-    <!-- LEFT PANEL: EDITOR FORM -->
-    <section class="no-print lg:col-span-5 space-y-4">
-      
-      <!-- Document Details -->
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
-        <h2 class="font-bold text-xs uppercase tracking-wider text-[#122453]">1. Invoice Meta</h2>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-medium mb-1">Invoice Number</label>
-            <input id="docNumber" type="text" value="INV038" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm font-mono" />
+  <!-- Main Workspace -->
+  <main class="workspace">
+
+    <!-- Left Form Controls -->
+    <aside class="editor-panel">
+
+      <!-- 1. Invoice Meta -->
+      <div class="section-card">
+        <div class="section-heading">1. INVOICE META</div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Invoice Number</label>
+            <input type="text" id="in-inv-num" class="form-control" value="INV038" oninput="renderInvoice()">
           </div>
-          <div>
-            <label class="block text-xs font-medium mb-1">Issue Date</label>
-            <input id="issueDate" type="date" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+          <div class="form-group">
+            <label>Issue Date</label>
+            <input type="date" id="in-issue-date" class="form-control" value="2026-11-15" oninput="renderInvoice()">
           </div>
-          <div>
-            <label class="block text-xs font-medium mb-1">Due Date</label>
-            <input id="dueDate" type="date" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+          <div class="form-group">
+            <label>Due Date</label>
+            <input type="date" id="in-due-date" class="form-control" value="2026-11-15" oninput="renderInvoice()">
           </div>
-          <div>
-            <label class="block text-xs font-medium mb-1">Terms</label>
-            <input id="termsText" type="text" value="Due on receipt" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
+          <div class="form-group">
+            <label>Net Payments (Cash/Paid)</label>
+            <input type="number" id="in-net-payments" class="form-control" value="0" step="0.01" oninput="renderInvoice()">
           </div>
         </div>
-      </div>
-
-      <!-- Client Details -->
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
-        <h2 class="font-bold text-xs uppercase tracking-wider text-[#122453]">2. Client (Bill To)</h2>
-        <input id="buyerName" type="text" value="DAVIS & SHIRTLIFF" placeholder="Client / Company Name" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm uppercase font-semibold" />
-        <div class="grid grid-cols-2 gap-3">
-          <input id="buyerPin" type="text" placeholder="Client KRA PIN" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm uppercase" />
-          <input id="buyerContact" type="text" placeholder="Phone / Email" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-sm" />
-        </div>
-      </div>
-
-      <!-- Line Items -->
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
-        <div class="flex justify-between items-center">
-          <h2 class="font-bold text-xs uppercase tracking-wider text-[#122453]">3. Line Items</h2>
-          <button onclick="addItem()" class="text-xs bg-[#122453] text-white px-2.5 py-1 rounded hover:bg-blue-900">+ Add Item</button>
-        </div>
-        <div id="itemsContainer" class="space-y-2"></div>
-      </div>
-
-      <!-- Payment & Bank Info -->
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 space-y-3">
-        <h2 class="font-bold text-xs uppercase tracking-wider text-[#122453]">4. Payment Details</h2>
-        <textarea id="bankDetails" rows="4" oninput="renderPreview()" class="w-full border rounded px-2.5 py-1.5 text-xs font-mono">PAYMENT MADE TO FAMILY BANK LIMITED
-BANK NAME: FAMILY BANK | BRANCH: RUIRU
-ACCOUNT NAME: FIRES MEDIA & MARKETING/ADVERTISNG COMPANY LTD
-ACCOUNT NUMBER: 024000066950
-MPESA PAYMENT: PAYBILL No. 222111 | ACCT. 3145745</textarea>
-      </div>
-
-    </section>
-
-    <!-- RIGHT PANEL: LIVE A4 PREVIEW -->
-    <section class="lg:col-span-7">
-      <div id="invoiceSheet" class="print-container bg-white shadow-xl border border-slate-200 p-8 min-h-[1050px] flex flex-col justify-between font-sans">
         
+      </div>
+
+      <!-- 2. Client (Bill To) -->
+      <div class="section-card">
+        <div class="section-heading">2. CLIENT (BILL TO)</div>
+        <div class="form-group">
+          <label>Client / Company Name</label>
+          <input type="text" id="in-client-name" class="form-control" value="DAVIS & SHIRTLIFF" oninput="renderInvoice()">
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Client KRA PIN</label>
+            <input type="text" id="in-client-pin" class="form-control" placeholder="e.g. P051234567X" oninput="renderInvoice()">
+          </div>
+          <div class="form-group">
+            <label>Phone / Email</label>
+            <input type="text" id="in-client-contact" class="form-control" placeholder="Optional" oninput="renderInvoice()">
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Line Items & Rate Card / Sponsorship Packages -->
+      <div class="section-card">
+        <div class="section-heading">
+          <span>3. PACKAGES &amp; LINE ITEMS</span>
+          <button type="button" class="btn btn-add-item" onclick="addLineItem()">+ Custom Item</button>
+        </div>
+
+        <div class="preset-group-label">Quick Add: Exhibition Booth Rate Card (Excl. VAT)</div>
+        <div class="preset-grid">
+          <button type="button" class="btn-preset" onclick="addPreset('booth_3x3')">
+            3M × 3M Booth
+            <small>60,000 + VAT</small>
+          </button>
+          <button type="button" class="btn-preset" onclick="addPreset('booth_3x6')">
+            3M × 6M Booth
+            <small>120,000 + VAT</small>
+          </button>
+          <button type="button" class="btn-preset" onclick="addPreset('booth_3x9')">
+            3M × 9M Booth
+            <small>180,000 + VAT</small>
+          </button>
+        </div>
+
+        <div class="preset-group-label">Quick Add: Sponsorship Packages</div>
+        <div class="preset-grid">
+          <button type="button" class="btn-preset tier-bronze" onclick="addPreset('sponsor_bronze')">
+            Bronze Sponsor
+            <small>KES 150,000</small>
+          </button>
+          <button type="button" class="btn-preset tier-silver" onclick="addPreset('sponsor_silver')">
+            Silver Sponsor
+            <small>KES 300,000</small>
+          </button>
+          <button type="button" class="btn-preset tier-gold" onclick="addPreset('sponsor_gold')">
+            Gold Sponsor
+            <small>KES 500,000</small>
+          </button>
+        </div>
+
+        <div id="items-editor-list"></div>
+      </div>
+
+      <!-- 4. Sender & Footer Bank / MPESA Details -->
+      <div class="section-card">
+        <div class="section-heading">4. SENDER &amp; FOOTER PAYMENT DETAILS</div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Sender Phone</label>
+            <input type="text" id="in-sender-phone" class="form-control" value="0713 907 584" oninput="renderInvoice()">
+          </div>
+          <div class="form-group">
+            <label>Sender Email</label>
+            <input type="text" id="in-sender-email" class="form-control" value="info@firesmediaevents.com" oninput="renderInvoice()">
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Bank Name</label>
+            <input type="text" id="in-bank-name" class="form-control" value="FAMILY BANK LIMITED" oninput="renderInvoice()">
+          </div>
+          <div class="form-group">
+            <label>Branch</label>
+            <input type="text" id="in-bank-branch" class="form-control" value="RUIRU" oninput="renderInvoice()">
+          </div>
+          <div class="form-group">
+            <label>Bank Code</label>
+            <input type="text" id="in-bank-code" class="form-control" value="070" oninput="renderInvoice()">
+          </div>
+          <div class="form-group">
+            <label>Branch Code</label>
+            <input type="text" id="in-branch-code" class="form-control" value="024" oninput="renderInvoice()">
+          </div>
+          <div class="form-group">
+            <label>SWIFT Code</label>
+            <input type="text" id="in-swift-code" class="form-control" value="FABLKENA" oninput="renderInvoice()">
+          </div>
+          <div class="form-group">
+            <label>Account Number</label>
+            <input type="text" id="in-acc-num" class="form-control" value="024000066950" oninput="renderInvoice()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Account Name</label>
+          <input type="text" id="in-acc-name" class="form-control" value="FIRES MEDIA & MARKETING/ ADVERTISING COMPANY LTD" oninput="renderInvoice()">
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>MPESA Paybill No.</label>
+            <input type="text" id="in-paybill" class="form-control" value="222111" oninput="renderInvoice()">
+          </div>
+          <div class="form-group">
+            <label>MPESA Account No.</label>
+            <input type="text" id="in-mpesa-acc" class="form-control" value="3145745" oninput="renderInvoice()">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>MPESA Business Name</label>
+          <input type="text" id="in-mpesa-biz" class="form-control" value="FIRES MEDIA FAMILY BANK" oninput="renderInvoice()">
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Right Live A4 Invoice Sheet -->
+    <section class="preview-container">
+      <div id="invoice-sheet">
+
         <div>
-          <!-- Header Banner -->
-          <div class="bg-[#122453] text-white p-6 rounded-t-lg flex justify-between items-center">
-            <div>
-              <span class="text-[#FACC15] font-extrabold tracking-widest text-xs uppercase">Cribs & Biz Fusion Expo</span>
-              <h2 class="text-2xl font-black uppercase tracking-wide mt-0.5">PAYMENT INVOICE</h2>
+          <!-- Navy Header with Logo -->
+          <div class="inv-header">
+            <div class="inv-header-left">
+              <div class="expo-logo-wrapper">
+                <img id="expo-logo-img" class="expo-logo-img" src="LOGO EXPO.jpeg" alt="Cribs & Biz Fusion Expo Logo" crossorigin="anonymous">
+              </div>
+
+              <div class="inv-header-titles">
+                <div class="sub-brand">CRIBS &amp; BIZ FUSION EXPO</div>
+                <h1>PAYMENT INVOICE</h1>
+              </div>
             </div>
-            <div class="text-right">
-              <p class="text-sm font-mono font-bold text-[#FACC15]" id="prevDocNumber">#INV038</p>
-              <p class="text-xs text-slate-300 mt-1">Date: <span id="prevIssueDate">09/09/2026</span></p>
-              <p class="text-xs text-slate-300">Due: <span id="prevDueDate">09/09/2026</span></p>
+
+            <div class="inv-header-right">
+              <div class="inv-number-tag" id="out-inv-num">#INV038</div>
+              <div class="inv-meta-line">Date: <span id="out-issue-date">2026-11-15</span></div>
+              <div class="inv-meta-line">Due: <span id="out-due-date">2026-11-15</span></div>
             </div>
           </div>
 
-          <!-- Organizer & Client Bar -->
-          <div class="grid grid-cols-2 gap-4 p-6 bg-slate-50 border-x border-b border-slate-200 text-xs">
-            <div>
-              <p class="font-bold text-[#122453] uppercase">Cribs & Biz Fusion Expo</p>
-              <p class="text-slate-600 mt-1">Organized by Fires Media & Marketing</p>
-              <p class="text-slate-600">Tel: 0713 907 584 / info@firesmediaevents.com</p>
-            </div>
-            <div class="text-right">
-              <p class="font-bold text-[#122453] uppercase">Bill To:</p>
-              <p id="prevBuyerName" class="font-bold text-slate-900 text-sm mt-0.5">DAVIS & SHIRTLIFF</p>
-              <p id="prevBuyerPin" class="text-slate-600 font-mono">PIN: -</p>
-            </div>
-          </div>
+          <!-- Main Body -->
+          <div class="inv-body">
+            <!-- Sender & Client Details -->
+            <div class="parties-row">
+              <div class="sender-block">
+                <h2>CRIBS &amp; BIZ FUSION EXPO</h2>
+                <span class="sender-line">Tel: <span id="out-sender-phone">0713 907 584</span></span>
+                <span class="sender-line" id="out-sender-email">info@firesmediaevents.com</span>
+              </div>
 
-          <!-- Items Table (Matching Exact Layout) -->
-          <table class="w-full mt-6 text-left border-collapse text-xs">
-            <thead>
-              <tr class="bg-[#122453] text-white uppercase text-[11px]">
-                <th class="py-2.5 px-3">Item & Description</th>
-                <th class="py-2.5 px-2 text-right">Quantity</th>
-                <th class="py-2.5 px-2 text-right">Unit Price</th>
-                <th class="py-2.5 px-2 text-center">VAT</th>
-                <th class="py-2.5 px-3 text-right">Amount KES</th>
-              </tr>
-            </thead>
-            <tbody id="prevItemsBody" class="divide-y divide-slate-200"></tbody>
-          </table>
+              <div class="client-block">
+                <div class="bill-label">BILL TO:</div>
+                <div class="client-name" id="out-client-name">DAVIS &amp; SHIRTLIFF</div>
+                <div class="client-sub">PIN: <span id="out-client-pin">-</span></div>
+                <div class="client-sub" id="out-client-contact"></div>
+              </div>
+            </div>
 
-          <!-- Totals Breakdown -->
-          <div class="mt-6 flex justify-end">
-            <div class="w-72 space-y-2 text-xs">
-              <div class="flex justify-between py-1 border-b border-slate-100 text-slate-600">
-                <span>Subtotal</span>
-                <span id="prevSubtotal" class="font-mono font-semibold">0.00</span>
-              </div>
-              <div class="flex justify-between py-1 border-b border-slate-100 text-slate-600">
-                <span>Total Tax (16% VAT)</span>
-                <span id="prevVat" class="font-mono font-semibold">0.00</span>
-              </div>
-              <div class="flex justify-between py-2 text-sm font-bold text-[#122453] border-t-2 border-[#122453]">
-                <span>Invoice Total KES</span>
-                <span id="prevGrandTotal" class="font-mono">0.00</span>
-              </div>
-              <div class="flex justify-between py-1 text-slate-500">
-                <span>Total Net Payments (Cash)</span>
-                <span class="font-mono">0.00</span>
-              </div>
-              <div class="flex justify-between py-2 text-sm font-bold bg-[#FACC15]/20 px-2 rounded text-[#122453]">
-                <span>Amount Due KES</span>
-                <span id="prevAmountDue" class="font-mono">0.00</span>
+            <!-- Line Items Table -->
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th style="width: 44%;">Item &amp; Description</th>
+                  <th class="num" style="width: 11%;">Quantity</th>
+                  <th class="num" style="width: 15%;">Unit Price</th>
+                  <th class="num" style="width: 11%;">VAT</th>
+                  <th class="num" style="width: 19%;">Amount KES</th>
+                </tr>
+              </thead>
+              <tbody id="out-items-tbody"></tbody>
+            </table>
+
+            <!-- Totals Block -->
+            <div class="totals-wrapper">
+              <table class="totals-table">
+                <tr>
+                  <td class="label">Subtotal</td>
+                  <td class="val" id="out-subtotal">60,000.00</td>
+                </tr>
+                <tr>
+                  <td class="label">Total Tax (16% VAT)</td>
+                  <td class="val" id="out-tax">9,600.00</td>
+                </tr>
+                <tr class="border-top">
+                  <td class="label">Invoice Total KES</td>
+                  <td class="val" id="out-total">69,600.00</td>
+                </tr>
+                <tr class="border-bottom">
+                  <td class="label">Total Net Payments (Cash)</td>
+                  <td class="val" id="out-net-payments">0.00</td>
+                </tr>
+                <tr class="amount-due">
+                  <td class="label">Amount Due KES</td>
+                  <td class="val" id="out-amount-due">69,600.00</td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Payment Made To & Yellow MPESA Footer Template -->
+            <div class="payment-section">
+              <div class="payment-title">PAYMENT MADE TO</div>
+
+              <table class="bank-details-table">
+                <tr>
+                  <td class="bank-label">BANK NAME:</td>
+                  <td class="bank-val" id="out-bank-name">FAMILY BANK LIMITED</td>
+                </tr>
+                <tr>
+                  <td class="bank-label">BRANCH:</td>
+                  <td class="bank-val" id="out-bank-branch">RUIRU</td>
+                </tr>
+                <tr>
+                  <td class="bank-label">BANK CODE:</td>
+                  <td class="bank-val" id="out-bank-code">070</td>
+                </tr>
+                <tr>
+                  <td class="bank-label">BRANCH CODE:</td>
+                  <td class="bank-val" id="out-branch-code">024</td>
+                </tr>
+                <tr>
+                  <td class="bank-label">SWIF CODE:</td>
+                  <td class="bank-val" id="out-swift-code">FABLKENA</td>
+                </tr>
+                <tr>
+                  <td class="bank-label">ACCOUNT NAME</td>
+                  <td class="bank-val" id="out-acc-name">FIRES MEDIA &amp; MARKETING/<br>ADVERTISING COMPANY LTD</td>
+                </tr>
+                <tr>
+                  <td class="bank-label">ACCOUNT NUMBER:</td>
+                  <td class="bank-val" id="out-acc-num">024000066950</td>
+                </tr>
+              </table>
+
+              <div class="mpesa-banner">
+                <div class="mpesa-line-1">MPESA PAYMENT: PAYBILL No. <span id="out-paybill-1">222111</span></div>
+                <div class="mpesa-line-2">
+                  PAYBILL No. <span id="out-paybill-2">222111</span> | ACCT. <span id="out-mpesa-acc">3145745</span> | BUSINESS NAME. <span id="out-mpesa-biz">FIRES MEDIA FAMILY BANK</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Payment & Bank Details Footer -->
-        <div class="mt-8 pt-4 border-t-2 border-slate-200 bg-slate-50 p-4 rounded text-[11px] text-slate-700 leading-relaxed font-mono whitespace-pre-line" id="prevBankDetails">
-          PAYMENT MADE TO FAMILY BANK LIMITED...
+        <!-- Bottom Navy Contact Bar -->
+        <div class="inv-bottom-strip">
+          Tel: +254 713 907 584 | info@firesmediaevents.com
         </div>
 
       </div>
     </section>
+
   </main>
 
-  <script src="app.js"></script>
+  <script>
+    const PACKAGE_PRESETS = {
+      booth_3x3: {
+        description: "Space booking for 3M x 3M Labelled Tent (Stall)\nCribs & Biz Fusion Expo — Runda Mall, Kiambu Road\nIncludes: 4 Badges, 4 Seats, 1 Table, 1 Dozen Water, 1 Car Pass.",
+        qty: 1,
+        unitPrice: 60000,
+        vatRate: 16
+      },
+      booth_3x6: {
+        description: "Space booking for 3M x 6M Labelled Tent (Double Stall)\nCribs & Biz Fusion Expo — Runda Mall, Kiambu Road\nIncludes: 8 Badges, 8 Seats, 2 Tables, 2 Dozens Water, 2 Car Passes.",
+        qty: 1,
+        unitPrice: 120000,
+        vatRate: 16
+      },
+      booth_3x9: {
+        description: "Space booking for 3M x 9M Labelled Tent (Triple Stall)\nCribs & Biz Fusion Expo — Runda Mall, Kiambu Road\nIncludes: 12 Badges, 12 Seats, 3 Tables, 3 Dozens Water, 3 Car Passes.",
+        qty: 1,
+        unitPrice: 180000,
+        vatRate: 16
+      },
+      sponsor_bronze: {
+        description: "BRONZE SPONSORSHIP PACKAGE — Cribs & Biz Fusion Expo\nIncludes: 3M x 3M Prime Exhibition Booth, 4 Badges, 1 Car Pass & Social Media Ads.",
+        qty: 1,
+        unitPrice: 150000,
+        vatRate: 16
+      },
+      sponsor_silver: {
+        description: "SILVER SPONSORSHIP PACKAGE — Cribs & Biz Fusion Expo\nIncludes: 3M x 6M Prime Exhibition Booth, 8 Badges, 2 Car Passes & Poster Branding.",
+        qty: 1,
+        unitPrice: 300000,
+        vatRate: 16
+      },
+      sponsor_gold: {
+        description: "GOLD SPONSORSHIP PACKAGE — Cribs & Biz Fusion Expo\nIncludes: 3M x 9M Headline Pavilion Booth, 12 Badges, 3 Car Passes & TVC Posting.",
+        qty: 1,
+        unitPrice: 500000,
+        vatRate: 16
+      }
+    };
+
+    let lineItems = [
+      {
+        description: "Space booking for stall No. 27\nCribs & Biz Fusion Expo to be held in October, 16-18, 2026,\nRunda Mall - Kiambu Road.",
+        qty: 1,
+        unitPrice: 60000,
+        vatRate: 16
+      }
+    ];
+
+    function addPreset(key) {
+      const preset = PACKAGE_PRESETS[key];
+      if (!preset) return;
+      lineItems.push({ ...preset });
+      renderItemsEditor();
+      renderInvoice();
+    }
+
+    function handleLogoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('expo-logo-img').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function formatMoney(num) {
+      return Number(num || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function renderItemsEditor() {
+      const container = document.getElementById('items-editor-list');
+      container.innerHTML = '';
+
+      lineItems.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'line-item-editor';
+        div.innerHTML = `
+          <div class="form-group">
+            <label>Item &amp; Description</label>
+            <textarea class="form-control" oninput="updateItem(${index}, 'description', this.value)">${item.description}</textarea>
+          </div>
+          <div class="line-item-row">
+            <div class="form-group">
+              <label>Qty</label>
+              <input type="number" class="form-control" value="${item.qty}" min="0" step="0.01" oninput="updateItem(${index}, 'qty', parseFloat(this.value) || 0)">
+            </div>
+            <div class="form-group">
+              <label>Unit Price (KES)</label>
+              <input type="number" class="form-control" value="${item.unitPrice}" min="0" step="0.01" oninput="updateItem(${index}, 'unitPrice', parseFloat(this.value) || 0)">
+            </div>
+            <div class="form-group">
+              <label>VAT %</label>
+              <input type="number" class="form-control" value="${item.vatRate}" min="0" step="1" oninput="updateItem(${index}, 'vatRate', parseFloat(this.value) || 0)">
+            </div>
+            <button type="button" class="btn-remove" title="Remove Item" onclick="removeLineItem(${index})">×</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addLineItem() {
+      lineItems.push({
+        description: "Exhibition Stall / Branding Package",
+        qty: 1,
+        unitPrice: 0,
+        vatRate: 16
+      });
+      renderItemsEditor();
+      renderInvoice();
+    }
+
+    function removeLineItem(index) {
+      if (lineItems.length <= 1) return;
+      lineItems.splice(index, 1);
+      renderItemsEditor();
+      renderInvoice();
+    }
+
+    function updateItem(index, field, value) {
+      lineItems[index][field] = value;
+      renderInvoice();
+    }
+
+    function renderInvoice() {
+      const invNum = document.getElementById('in-inv-num').value.trim() || 'INV001';
+      document.getElementById('out-inv-num').textContent = invNum.startsWith('#') ? invNum : `#${invNum}`;
+      document.getElementById('out-issue-date').textContent = document.getElementById('in-issue-date').value;
+      document.getElementById('out-due-date').textContent = document.getElementById('in-due-date').value;
+
+      document.getElementById('out-sender-phone').textContent = document.getElementById('in-sender-phone').value;
+      document.getElementById('out-sender-email').textContent = document.getElementById('in-sender-email').value;
+
+      document.getElementById('out-client-name').textContent = document.getElementById('in-client-name').value || 'CLIENT NAME';
+      const pinVal = document.getElementById('in-client-pin').value.trim();
+      document.getElementById('out-client-pin').textContent = pinVal ? pinVal : '-';
+      document.getElementById('out-client-contact').textContent = document.getElementById('in-client-contact').value.trim();
+
+      const tbody = document.getElementById('out-items-tbody');
+      tbody.innerHTML = '';
+
+      let subtotal = 0;
+      let totalTax = 0;
+
+      lineItems.forEach(item => {
+        const lineAmount = (item.qty || 0) * (item.unitPrice || 0);
+        const lineTax = lineAmount * ((item.vatRate || 0) / 100);
+        subtotal += lineAmount;
+        totalTax += lineTax;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="desc-text">${escapeHtml(item.description)}</td>
+          <td class="num">${formatMoney(item.qty)}</td>
+          <td class="num">${formatMoney(item.unitPrice)}</td>
+          <td class="num">${item.vatRate}%</td>
+          <td class="num">${formatMoney(lineAmount)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const invoiceTotal = subtotal + totalTax;
+      const netPayments = parseFloat(document.getElementById('in-net-payments').value) || 0;
+      const amountDue = invoiceTotal - netPayments;
+
+      document.getElementById('out-subtotal').textContent = formatMoney(subtotal);
+      document.getElementById('out-tax').textContent = formatMoney(totalTax);
+      document.getElementById('out-total').textContent = formatMoney(invoiceTotal);
+      document.getElementById('out-net-payments').textContent = formatMoney(netPayments);
+      document.getElementById('out-amount-due').textContent = formatMoney(amountDue);
+
+      document.getElementById('out-bank-name').textContent = document.getElementById('in-bank-name').value;
+      document.getElementById('out-bank-branch').textContent = document.getElementById('in-bank-branch').value;
+      document.getElementById('out-bank-code').textContent = document.getElementById('in-bank-code').value;
+      document.getElementById('out-branch-code').textContent = document.getElementById('in-branch-code').value;
+      document.getElementById('out-swift-code').textContent = document.getElementById('in-swift-code').value;
+
+      const accNameRaw = document.getElementById('in-acc-name').value;
+      document.getElementById('out-acc-name').innerHTML = escapeHtml(accNameRaw).replace('/', '/<br>');
+      document.getElementById('out-acc-num').textContent = document.getElementById('in-acc-num').value;
+
+      const paybill = document.getElementById('in-paybill').value;
+      document.getElementById('out-paybill-1').textContent = paybill;
+      document.getElementById('out-paybill-2').textContent = paybill;
+      document.getElementById('out-mpesa-acc').textContent = document.getElementById('in-mpesa-acc').value;
+      document.getElementById('out-mpesa-biz').textContent = document.getElementById('in-mpesa-biz').value;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function downloadPDF() {
+      const btn = document.getElementById('downloadBtn');
+      const element = document.getElementById('invoice-sheet');
+      const clientName = (document.getElementById('in-client-name').value.trim() || 'Client').replace(/[^a-zA-Z0-9 _&-]/g, '');
+      const invNum = (document.getElementById('in-inv-num').value.trim() || 'INV').replace(/[^a-zA-Z0-9_-]/g, '');
+      const filename = `${clientName}_Invoice_${invNum}.pdf`;
+
+      btn.disabled = true;
+      const originalHtml = btn.innerHTML;
+      btn.textContent = 'Generating PDF...';
+
+      const opt = {
+        margin: [0, 0, 0, 0],
+        filename: filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true, windowWidth: 794 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf()
+        .set(opt)
+        .from(element)
+        .save()
+        .then(() => {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        })
+        .catch(() => {
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+        });
+    }
+
+    // Initialize
+    renderItemsEditor();
+    renderInvoice();
+  </script>
 </body>
 </html>
